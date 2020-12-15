@@ -1,5 +1,5 @@
 all:
-	rm -rf ebin/* *.beam erl_cr*;
+	rm -rf ebin/* *.beam erl_cr* *~ */*~;
 	cp ../../infra_2/dbase_service/src/*.app ebin;
 	erlc -o ebin ../../infra_2/dbase_service/src/*.erl;
 	cp ../../infra_2/common/src/*.app ebin;
