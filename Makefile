@@ -1,5 +1,5 @@
 all:
-	erl -pa ebin -sname 10250 -s dbase_application boot -setcookie abc -detached
+	erl -pa ebin -sname 10250 -run dbase_application boot -setcookie abc -detached
 clean:
 	rm -rf  *~ */*~ */*/*~ *.beam *erl_crash*
 doc_gen:
