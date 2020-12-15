@@ -1,11 +1,5 @@
 all:
-	rm -rf ebin/* *.beam erl_cr* *~ */*~;
-	cp ../../infra_2/dbase_service/src/*.app ebin;
-	erlc -o ebin ../../infra_2/dbase_service/src/*.erl;
-	cp ../../infra_2/common/src/*.app ebin;
-	erlc -o ebin ../../infra_2/common/src/*.erl;
-	cp src/*.app ebin;
-	erlc -o ebin src/*.erl
+	erl -pa ebin -sname 10250 -s dbase_application boot -setcookie abc 
 clean:
 	rm -rf  *~ */*~ */*/*~ *.beam *erl_crash*
 doc_gen:
@@ -14,7 +8,7 @@ doc_gen:
 	erl -s doc_gen start -sname doc
 
 release:
-	rm -rf ebin/* *.beam erl_cr*;
+	rm -rf ebin/* *.beam erl_cr* *~ */*~;
 	cp ../../infra_2/dbase_service/src/*.app ebin;
 	erlc -o ebin ../../infra_2/dbase_service/src/*.erl;
 	cp ../../infra_2/common/src/*.app ebin;
