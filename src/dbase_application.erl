@@ -28,7 +28,8 @@
 %% --------------------------------------------------------------------
 %% Definitions 
 %% --------------------------------------------------------------------
--export([services/0	 
+-export([services/0,
+	 update_services/1
 	]).
 
 -export([boot/0,
@@ -61,6 +62,9 @@ ping()->
 
 %%-----------------------------------------------------------------------
 
+update_services(Services)-> 
+    gen_server:cast(?MODULE, {update_services,Services}).
+
 services()-> 
     gen_server:call(?MODULE, {services},infinity).
    
@@ -84,25 +88,9 @@ services()->
 init([]) ->
     
     ok=application:start(common),
-    ok=application:start(dbase),
-   
-    {ok,[{application,common,InfoCommon}]}=file:consult("./ebin/common.app"),
-    {vsn,VsnCommon}=lists:keyfind(vsn,1,InfoCommon),
-    {ok,[{application,dbase,InfoDbase}]}=file:consult("./ebin/dbase.app"),
-    {vsn,VsnDbase}=lists:keyfind(vsn,1,InfoDbase),
-    {ok,[{application,dbase_application,InfoApp}]}=file:consult("./ebin/dbase_application.app"),
-    {vsn,VsnApp}=lists:keyfind(vsn,1,InfoApp),
-
- %   io:format("~p~n",["./ebin/common.app"]),
-   
- %   io:format("~p~n",[InfoCommon]),
-
-  %  io:format("~p~n",[VsnCommon]),
-  
-    {ok, #state{services=[{"common",VsnCommon},
-			  {"dbase",VsnDbase},
-			  {"dbase_application",VsnApp}
-			 ]}}.
+    ok=application:start(dbase),  
+    spawn(fun()->update_service_list() end),
+    {ok, #state{services=[]}}.
 
 %% --------------------------------------------------------------------
 %% Function: handle_call/3
@@ -138,9 +126,14 @@ handle_call(Request, From, State) ->
 %%          {stop, Reason, State}            (terminate/2 is called)
 %% -------------------------------------------------------------------
 			     
+handle_cast({update_services,Services}, State) ->
+    NewState=State#state{services=Services},
+    {noreply, NewState};
+
 handle_cast(Msg, State) ->
     io:format("unmatched match cast ~p~n",[{?MODULE,?LINE,Msg}]),
     {noreply, State}.
+
 
 %% --------------------------------------------------------------------
 %% Function: handle_info/2
@@ -184,6 +177,9 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal functions
 %% --------------------------------------------------------------------
 
+update_service_list()->
+    L=application:which_applications(),
+    rpc:cast(node(),?MODULE,update_services,[L]).
 %% --------------------------------------------------------------------
 %% Function: 
 %% Description:
