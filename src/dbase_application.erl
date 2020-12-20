@@ -126,7 +126,8 @@ handle_call(Request, From, State) ->
 %%          {stop, Reason, State}            (terminate/2 is called)
 %% -------------------------------------------------------------------
 			     
-handle_cast({update_services,Services}, State) ->
+handle_cast({update_services,_L}, State) ->
+    Services=rpc:call(node(),application,which_applications,[]),
     NewState=State#state{services=Services},
     {noreply, NewState};
 
@@ -178,7 +179,7 @@ code_change(_OldVsn, State, _Extra) ->
 %% --------------------------------------------------------------------
 
 update_service_list()->
-    L=application:which_applications(),
+    L=glurk,
     rpc:cast(node(),?MODULE,update_services,[L]).
 %% --------------------------------------------------------------------
 %% Function: 
