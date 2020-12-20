@@ -29,7 +29,7 @@
 %% Definitions 
 %% --------------------------------------------------------------------
 -export([services/0,
-	 update_services/1
+	 update_services/0
 	]).
 
 -export([boot/0,
@@ -62,8 +62,8 @@ ping()->
 
 %%-----------------------------------------------------------------------
 
-update_services(Services)-> 
-    gen_server:cast(?MODULE, {update_services,Services}).
+update_services()-> 
+    gen_server:cast(?MODULE, {update_services}).
 
 services()-> 
     gen_server:call(?MODULE, {services},infinity).
@@ -126,7 +126,7 @@ handle_call(Request, From, State) ->
 %%          {stop, Reason, State}            (terminate/2 is called)
 %% -------------------------------------------------------------------
 			     
-handle_cast({update_services,_L}, State) ->
+handle_cast({update_services}, State) ->
     Services=rpc:call(node(),application,which_applications,[]),
     NewState=State#state{services=Services},
     {noreply, NewState};
@@ -179,8 +179,7 @@ code_change(_OldVsn, State, _Extra) ->
 %% --------------------------------------------------------------------
 
 update_service_list()->
-    L=glurk,
-    rpc:cast(node(),?MODULE,update_services,[L]).
+    rpc:cast(node(),?MODULE,update_services,[]).
 %% --------------------------------------------------------------------
 %% Function: 
 %% Description:
