@@ -87,7 +87,7 @@ services()->
 
 init([]) ->
     
-    ok=application:start(common),
+    application:start(common),
     ok=application:start(dbase),  
     spawn(fun()->update_service_list() end),
     {ok, #state{services=[]}}.
